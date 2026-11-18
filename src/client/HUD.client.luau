@@ -156,3 +156,28 @@ UserInputService.InputBegan:Connect(function(inp,gp)
 end)
 
 refresh()
+
+-- CREDIT PEMBUAT
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+local creditGui = Instance.new("ScreenGui")
+creditGui.Name = "CreditGui"
+creditGui.ResetOnSpawn = false
+creditGui.IgnoreGuiInset = true
+creditGui.Parent = playerGui
+
+local creditLabel = Instance.new("TextLabel")
+creditLabel.Name = "CreditLabel"
+creditLabel.Size = UDim2.new(0, 380, 0, 52)
+creditLabel.Position = UDim2.new(0, 12, 1, -64)
+creditLabel.BackgroundTransparency = 1
+creditLabel.Text = "Karya Pembuat by Muhammad Sulaiman\nTwitter: @husnan97"
+creditLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+creditLabel.TextStrokeTransparency = 0.2
+creditLabel.TextScaled = true
+creditLabel.Font = Enum.Font.GothamBold
+creditLabel.TextXAlignment = Enum.TextXAlignment.Left
+creditLabel.TextYAlignment = Enum.TextYAlignment.Bottom
+creditLabel.Parent = creditGui
