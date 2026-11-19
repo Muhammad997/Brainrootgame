@@ -252,3 +252,4 @@ end) -- mtr
 Players.PlayerRemoving:Connect(function(player) -- mtr
 	playerData[player] = nil -- mtr
 end) -- mtr
+-- recorded edit 19 Nov

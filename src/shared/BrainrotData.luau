@@ -68,3 +68,4 @@ function BrainrotData.makeAttributes(entry) -- mtr
 end -- mtr
 
 return BrainrotData -- mtr
+-- recorded edit 19 Nov
