@@ -1,183 +1,295 @@
 -- HUD.client.luau
+-- HUD besar dan mudah dibaca untuk Brainrot 3D.
+-- Menampilkan duit, $/detik, multiplier, jumlah brainrot, status lock,
+-- serta tombol Beli, Lock, Rebirth, dan Steal.
+
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
+local Workspace = game:GetService("Workspace")
 
 local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
 local BuyEvent = ReplicatedStorage:WaitForChild("BuyBrainrot")
 local LockEvent = ReplicatedStorage:WaitForChild("LockBase")
 local RebirthEvent = ReplicatedStorage:WaitForChild("Rebirth")
+local StealEvent = ReplicatedStorage:WaitForChild("StealBrainrot")
 local UpdateEvent = ReplicatedStorage:WaitForChild("PlayerUpdate")
+local RequestUpdateEvent = ReplicatedStorage:WaitForChild("RequestUpdate")
 
-local data = {Money=0, PerSecond=0, Multiplier=1, Brainrots={}, Locked=false}
+local data = {
+	Money = 0,
+	PerSecond = 0,
+	Multiplier = 1,
+	Brainrots = {},
+	BrainrotCount = 0,
+	Locked = false,
+	LockRemaining = 0,
+	CooldownRemaining = 0,
+	Message = "",
+}
 
 local gui = Instance.new("ScreenGui")
 gui.Name = "BrainrotHUD"
 gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
-gui.Parent = player:WaitForChild("PlayerGui")
+gui.DisplayOrder = 10
+gui.Parent = playerGui
 
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0,460,0,280)
-frame.Position = UDim2.new(1,-480,0,20)
-frame.BackgroundColor3 = Color3.fromRGB(25,25,30)
-frame.BackgroundTransparency = 0.15
-frame.BorderSizePixel = 0
-frame.Parent = gui
+local panel = Instance.new("Frame")
+panel.Name = "MainPanel"
+panel.Size = UDim2.new(0, 540, 0, 380)
+panel.Position = UDim2.new(1, -560, 0, 16)
+panel.BackgroundColor3 = Color3.fromRGB(22, 24, 32)
+panel.BackgroundTransparency = 0.1
+panel.BorderSizePixel = 0
+panel.Parent = gui
+
+local function roundCorners(guiObject, radius)
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, radius)
+	corner.Parent = guiObject
+end
+
+roundCorners(panel, 12)
 
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1,0,0,36)
+title.Size = UDim2.new(1, -20, 0, 42)
+title.Position = UDim2.new(0, 10, 0, 8)
 title.BackgroundTransparency = 1
 title.Text = "BRAINROT 3D"
-title.TextColor3 = Color3.fromRGB(255,255,255)
-title.TextSize = 26
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.TextSize = 30
 title.Font = Enum.Font.GothamBlack
-title.Parent = frame
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = panel
 
 local money = Instance.new("TextLabel")
-money.Size = UDim2.new(1,-20,0,32)
-money.Position = UDim2.new(0,10,0,42)
+money.Size = UDim2.new(1, -20, 0, 40)
+money.Position = UDim2.new(0, 10, 0, 52)
 money.BackgroundTransparency = 1
-money.Text = "Money: $0"
-money.TextColor3 = Color3.fromRGB(255,255,255)
-money.TextSize = 22
+money.Text = "DUIT: $0"
+money.TextColor3 = Color3.fromRGB(255, 235, 120)
+money.TextSize = 30
 money.Font = Enum.Font.GothamBold
 money.TextXAlignment = Enum.TextXAlignment.Left
-money.Parent = frame
+money.Parent = panel
 
-local perSec = Instance.new("TextLabel")
-perSec.Size = UDim2.new(1,-20,0,32)
-perSec.Position = UDim2.new(0,10,0,74)
-perSec.BackgroundTransparency = 1
-perSec.Text = "$/s: 0"
-perSec.TextColor3 = Color3.fromRGB(180,255,180)
-perSec.TextSize = 22
-perSec.Font = Enum.Font.GothamBold
-perSec.TextXAlignment = Enum.TextXAlignment.Left
-perSec.Parent = frame
+local perSecond = Instance.new("TextLabel")
+perSecond.Size = UDim2.new(1, -20, 0, 38)
+perSecond.Position = UDim2.new(0, 10, 0, 96)
+perSecond.BackgroundTransparency = 1
+perSecond.Text = "$/DETIK: 0"
+perSecond.TextColor3 = Color3.fromRGB(150, 255, 180)
+perSecond.TextSize = 28
+perSecond.Font = Enum.Font.GothamBold
+perSecond.TextXAlignment = Enum.TextXAlignment.Left
+perSecond.Parent = panel
 
-local mult = Instance.new("TextLabel")
-mult.Size = UDim2.new(1,-20,0,32)
-mult.Position = UDim2.new(0,10,0,106)
-mult.BackgroundTransparency = 1
-mult.Text = "Multiplier: 1.00x"
-mult.TextColor3 = Color3.fromRGB(255,220,120)
-mult.TextSize = 22
-mult.Font = Enum.Font.GothamBold
-mult.TextXAlignment = Enum.TextXAlignment.Left
-mult.Parent = frame
+local multiplier = Instance.new("TextLabel")
+multiplier.Size = UDim2.new(1, -20, 0, 34)
+multiplier.Position = UDim2.new(0, 10, 0, 138)
+multiplier.BackgroundTransparency = 1
+multiplier.Text = "MULTIPLIER: 1.00x"
+multiplier.TextColor3 = Color3.fromRGB(255, 210, 130)
+multiplier.TextSize = 26
+multiplier.Font = Enum.Font.GothamBold
+multiplier.TextXAlignment = Enum.TextXAlignment.Left
+multiplier.Parent = panel
 
+local brainrotCount = Instance.new("TextLabel")
+brainrotCount.Size = UDim2.new(1, -20, 0, 30)
+brainrotCount.Position = UDim2.new(0, 10, 0, 176)
+brainrotCount.BackgroundTransparency = 1
+brainrotCount.Text = "BRAINROT: 0"
+brainrotCount.TextColor3 = Color3.fromRGB(200, 200, 210)
+brainrotCount.TextSize = 24
+brainrotCount.Font = Enum.Font.Gotham
+brainrotCount.TextXAlignment = Enum.TextXAlignment.Left
+brainrotCount.Parent = panel
+
+local message = Instance.new("TextLabel")
+message.Size = UDim2.new(1, -20, 0, 32)
+message.Position = UDim2.new(0, 10, 0, 212)
+message.BackgroundTransparency = 1
+message.Text = "Status: siap"
+message.TextColor3 = Color3.fromRGB(180, 180, 180)
+message.TextSize = 22
+message.Font = Enum.Font.Gotham
+message.TextXAlignment = Enum.TextXAlignment.Left
+message.TextWrapped = true
+message.Parent = panel
+
+-- Tombol besar dan jelas.
 local btnBuy = Instance.new("TextButton")
-btnBuy.Size = UDim2.new(0.28,0,0,46)
-btnBuy.Position = UDim2.new(0.05,0,0.62,0)
-btnBuy.BackgroundColor3 = Color3.fromRGB(60,200,80)
-btnBuy.Text = "Beli Brainrot"
-btnBuy.TextColor3 = Color3.fromRGB(255,255,255)
-btnBuy.TextSize = 20
+btnBuy.Size = UDim2.new(0.235, 0, 0, 56)
+btnBuy.Position = UDim2.new(0.01, 0, 0, 258)
+btnBuy.BackgroundColor3 = Color3.fromRGB(55, 190, 80)
+btnBuy.Text = "BELI (B)"
+btnBuy.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnBuy.TextSize = 22
 btnBuy.Font = Enum.Font.GothamBold
-btnBuy.Parent = frame
+btnBuy.BorderSizePixel = 0
+btnBuy.Parent = panel
+roundCorners(btnBuy, 8)
 
 local btnLock = Instance.new("TextButton")
-btnLock.Size = UDim2.new(0.28,0,0,46)
-btnLock.Position = UDim2.new(0.36,0,0.62,0)
-btnLock.BackgroundColor3 = Color3.fromRGB(80,80,220)
-btnLock.Text = "Lock Base"
-btnLock.TextColor3 = Color3.fromRGB(255,255,255)
-btnLock.TextSize = 20
+btnLock.Size = UDim2.new(0.235, 0, 0, 56)
+btnLock.Position = UDim2.new(0.255, 0, 0, 258)
+btnLock.BackgroundColor3 = Color3.fromRGB(80, 80, 220)
+btnLock.Text = "LOCK (L)"
+btnLock.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnLock.TextSize = 22
 btnLock.Font = Enum.Font.GothamBold
-btnLock.Parent = frame
+btnLock.BorderSizePixel = 0
+btnLock.Parent = panel
+roundCorners(btnLock, 8)
 
 local btnRebirth = Instance.new("TextButton")
-btnRebirth.Size = UDim2.new(0.28,0,0,46)
-btnRebirth.Position = UDim2.new(0.67,0,0.62,0)
-btnRebirth.BackgroundColor3 = Color3.fromRGB(220,80,80)
-btnRebirth.Text = "Rebirth 100k"
-btnRebirth.TextColor3 = Color3.fromRGB(255,255,255)
-btnRebirth.TextSize = 20
+btnRebirth.Size = UDim2.new(0.235, 0, 0, 56)
+btnRebirth.Position = UDim2.new(0.5, 0, 0, 258)
+btnRebirth.BackgroundColor3 = Color3.fromRGB(215, 80, 80)
+btnRebirth.Text = "REBIRTH (R)"
+btnRebirth.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnRebirth.TextSize = 22
 btnRebirth.Font = Enum.Font.GothamBold
-btnRebirth.Parent = frame
+btnRebirth.BorderSizePixel = 0
+btnRebirth.Parent = panel
+roundCorners(btnRebirth, 8)
 
-local info = Instance.new("TextLabel")
-info.Size = UDim2.new(1,-20,0,36)
-info.Position = UDim2.new(0,10,0,210)
-info.BackgroundTransparency = 1
-info.Text = "Dekat conveyor, tekan Beli"
-info.TextColor3 = Color3.fromRGB(220,220,220)
-info.TextSize = 18
-info.Font = Enum.Font.Gotham
-info.TextXAlignment = Enum.TextXAlignment.Left
-info.Parent = frame
+local btnSteal = Instance.new("TextButton")
+btnSteal.Size = UDim2.new(0.235, 0, 0, 56)
+btnSteal.Position = UDim2.new(0.745, 0, 0, 258)
+btnSteal.BackgroundColor3 = Color3.fromRGB(230, 150, 60)
+btnSteal.Text = "STEAL (S)"
+btnSteal.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnSteal.TextSize = 22
+btnSteal.Font = Enum.Font.GothamBold
+btnSteal.BorderSizePixel = 0
+btnSteal.Parent = panel
+roundCorners(btnSteal, 8)
 
-local function findNearest()
-    local char = player.Character
-    if not char then return nil end
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return nil end
-    local nearest, best = nil, 16
-    for _,obj in ipairs(game.Workspace:GetChildren()) do
-        if obj:IsA("BasePart") and obj:GetAttribute("Price") then
-            local d = (hrp.Position - obj.Position).Magnitude
-            if d < best then best = d; nearest = obj end
-        end
-    end
-    return nearest
+local hint = Instance.new("TextLabel")
+hint.Size = UDim2.new(1, -20, 0, 38)
+hint.Position = UDim2.new(0, 10, 0, 326)
+hint.BackgroundTransparency = 1
+hint.Text = "Dekatkan karakter ke brainrot di conveyor (max 16 studs), lalu tekan Beli."
+hint.TextColor3 = Color3.fromRGB(220, 220, 230)
+hint.TextSize = 18
+hint.Font = Enum.Font.Gotham
+hint.TextWrapped = true
+hint.TextXAlignment = Enum.TextXAlignment.Left
+hint.Parent = panel
+
+local function refresh()
+	money.Text = "DUIT: $" .. math.floor(data.Money or 0)
+	perSecond.Text = "$/DETIK: " .. math.floor(data.PerSecond or 0)
+	multiplier.Text = string.format("MULTIPLIER: %.2fx", data.Multiplier or 1)
+	brainrotCount.Text = "BRAINROT: " .. (data.BrainrotCount or #(data.Brainrots or {}))
+	if data.Locked then
+		btnLock.Text = string.format("LOCK (%ds)", math.max(0, data.LockRemaining or 0))
+		btnLock.BackgroundColor3 = Color3.fromRGB(0, 160, 70)
+	elseif (data.CooldownRemaining or 0) > 0 then
+		btnLock.Text = string.format("LOCK CD (%ds)", data.CooldownRemaining)
+		btnLock.BackgroundColor3 = Color3.fromRGB(110, 110, 160)
+	else
+		btnLock.Text = "LOCK (L)"
+		btnLock.BackgroundColor3 = Color3.fromRGB(80, 80, 220)
+	end
+	if data.Message and data.Message ~= "" then
+		message.Text = data.Message
+		message.TextColor3 = Color3.fromRGB(140, 255, 220)
+	else
+		message.Text = "Status: siap"
+		message.TextColor3 = Color3.fromRGB(180, 180, 180)
+	end
+end
+
+local function findNearestBrainrot()
+	local character = player.Character
+	if not character then
+		return nil
+	end
+	local hrp = character:FindFirstChild("HumanoidRootPart")
+	if not hrp then
+		return nil
+	end
+	local folder = Workspace:FindFirstChild("BrainrotWorld")
+	if not folder then
+		return nil
+	end
+	local nearest = nil
+	local best = 18
+	for _, obj in ipairs(folder:GetDescendants()) do
+		if obj:IsA("BasePart") and obj:GetAttribute("Price") then
+			local distance = (hrp.Position - obj.Position).Magnitude
+			if distance < best then
+				best = distance
+				nearest = obj
+			end
+		end
+	end
+	return nearest
 end
 
 local function tryBuy()
-    local n = findNearest()
-    if n then BuyEvent:FireServer(n) end
+	local nearest = findNearestBrainrot()
+	if nearest then
+		BuyEvent:FireServer(nearest)
+	else
+		data.Message = "Dekatkan ke brainrot di conveyor (max 16 studs)"
+		refresh()
+	end
 end
 
-local function refresh()
-    money.Text = "Money: $"..math.floor(data.Money)
-    perSec.Text = "$/s: "..math.floor(data.PerSecond)
-    mult.Text = string.format("Multiplier: %.2fx", data.Multiplier)
-    if data.Locked then
-        btnLock.Text = "Locked 30s"
-        btnLock.BackgroundColor3 = Color3.fromRGB(0,160,0)
-    else
-        btnLock.Text = "Lock Base"
-        btnLock.BackgroundColor3 = Color3.fromRGB(80,80,220)
-    end
+local function trySteal()
+	local others = {}
+	for _, other in ipairs(Players:GetPlayers()) do
+		if other ~= player then
+			table.insert(others, other)
+		end
+	end
+	if #others == 0 then
+		data.Message = "Tidak ada pemain lain untuk dicuri"
+		refresh()
+		return
+	end
+	StealEvent:FireServer(others[1].Name, 1)
 end
-
-UpdateEvent.OnClientEvent:Connect(function(payload)
-    data = payload
-    refresh()
-end)
 
 btnBuy.MouseButton1Click:Connect(tryBuy)
-btnLock.MouseButton1Click:Connect(function() LockEvent:FireServer() end)
-btnRebirth.MouseButton1Click:Connect(function() RebirthEvent:FireServer() end)
+btnLock.MouseButton1Click:Connect(function()
+	LockEvent:FireServer()
+end)
+btnRebirth.MouseButton1Click:Connect(function()
+	RebirthEvent:FireServer()
+end)
+btnSteal.MouseButton1Click:Connect(trySteal)
 
-UserInputService.InputBegan:Connect(function(inp,gp)
-    if gp then return end
-    if inp.KeyCode == Enum.KeyCode.B then tryBuy() end
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed then
+		return
+	end
+	if input.KeyCode == Enum.KeyCode.B then
+		tryBuy()
+	elseif input.KeyCode == Enum.KeyCode.L then
+		LockEvent:FireServer()
+	elseif input.KeyCode == Enum.KeyCode.R then
+		RebirthEvent:FireServer()
+	elseif input.KeyCode == Enum.KeyCode.S then
+		trySteal()
+	end
+end)
+
+UpdateEvent.OnClientEvent:Connect(function(payload)
+	if payload then
+		for key, value in pairs(payload) do
+			data[key] = value
+		end
+		refresh()
+	end
 end)
 
 refresh()
-
--- CREDIT PEMBUAT
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
-
-local creditGui = Instance.new("ScreenGui")
-creditGui.Name = "CreditGui"
-creditGui.ResetOnSpawn = false
-creditGui.IgnoreGuiInset = true
-creditGui.Parent = playerGui
-
-local creditLabel = Instance.new("TextLabel")
-creditLabel.Name = "CreditLabel"
-creditLabel.Size = UDim2.new(0, 380, 0, 52)
-creditLabel.Position = UDim2.new(0, 12, 1, -64)
-creditLabel.BackgroundTransparency = 1
-creditLabel.Text = "Karya Pembuat by Muhammad Sulaiman\nTwitter: @husnan97"
-creditLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-creditLabel.TextStrokeTransparency = 0.2
-creditLabel.TextScaled = true
-creditLabel.Font = Enum.Font.GothamBold
-creditLabel.TextXAlignment = Enum.TextXAlignment.Left
-creditLabel.TextYAlignment = Enum.TextYAlignment.Bottom
-creditLabel.Parent = creditGui
+RequestUpdateEvent:FireServer()
