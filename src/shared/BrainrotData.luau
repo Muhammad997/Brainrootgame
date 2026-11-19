@@ -24,7 +24,7 @@ BrainrotData.RarityColors = { -- mtr
 } -- mtr
 
 BrainrotData.Catalog = { -- mtr
-	{Name = "Capybara DJ", Rarity = "Common", Price = 125, PerSecond = 6, Color = Color3.fromRGB(220, 200, 170)}, -- mtr
+	{Name = "Capybara DJ", Rarity = "Common", Price = 130, PerSecond = 6, Color = Color3.fromRGB(220, 200, 170)}, -- mtr
 	{Name = "Nasi Goreng Ninja", Rarity = "Common", Price = 180, PerSecond = 9, Color = Color3.fromRGB(255, 205, 110)}, -- mtr
 	{Name = "Kucing Astronaut", Rarity = "Rare", Price = 650, PerSecond = 34, Color = Color3.fromRGB(150, 210, 255)}, -- mtr
 	{Name = "Es Teh Raksasa", Rarity = "Rare", Price = 800, PerSecond = 42, Color = Color3.fromRGB(110, 255, 200)}, -- mtr

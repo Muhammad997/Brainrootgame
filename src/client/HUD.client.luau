@@ -94,7 +94,7 @@ local btnLock = button("LOCK (L)", UDim2.new(0.255, 0, 0, 258), Color3.fromRGB(8
 local btnRebirth = button("REBIRTH (R)", UDim2.new(0.5, 0, 0, 258), Color3.fromRGB(215, 80, 80)) -- mtr
 local btnSteal = button("STEAL (S)", UDim2.new(0.745, 0, 0, 258), Color3.fromRGB(230, 150, 60)) -- mtr
 
-local hint = label("Dekatkan karakter ke brainrot di conveyor (max 16 studs), lalu tekan Beli.", UDim2.new(1, -20, 0, 38), UDim2.new(0, 10, 0, 326), Color3.fromRGB(220, 220, 230), 18, Enum.Font.Gotham) -- mtr
+local hint = label("Dekatkan karakter ke brainrot di conveyor (max 16 studs), lalu tekan Beli atau B.", UDim2.new(1, -20, 0, 38), UDim2.new(0, 10, 0, 326), Color3.fromRGB(220, 220, 230), 18, Enum.Font.Gotham) -- mtr
 hint.TextWrapped = true -- mtr
 
 local function refresh() -- mtr
