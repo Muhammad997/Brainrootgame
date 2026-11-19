@@ -1,42 +1,42 @@
--- init.server.luau
--- Bootstrap server: pencahayaan, atmosphere, dan kesiapan world.
+-- init.server.luau -- mtr
+-- Bootstrap server Brainrot 3D METEOR: pencahayaan, atmosphere, spawn. -- mtr
 
-local Players = game:GetService("Players")
-local Lighting = game:GetService("Lighting")
-local Workspace = game:GetService("Workspace")
+local Players = game:GetService("Players") -- mtr
+local Lighting = game:GetService("Lighting") -- mtr
+local Workspace = game:GetService("Workspace") -- mtr
 
-Players.CharacterAutoLoads = true
+Players.CharacterAutoLoads = true -- mtr
 
-Lighting.Brightness = 2.2
-Lighting.ClockTime = 14.5
-Lighting.Ambient = Color3.fromRGB(90, 95, 110)
-Lighting.OutdoorAmbient = Color3.fromRGB(120, 120, 130)
-Lighting.GlobalShadows = true
-Lighting.ShadowSoftness = 0.6
-Lighting.EnvironmentDiffuseScale = 0.4
-Lighting.EnvironmentSpecularScale = 0.6
+Lighting.Brightness = 2.3 -- mtr
+Lighting.ClockTime = 14.6 -- mtr
+Lighting.Ambient = Color3.fromRGB(90, 95, 110) -- mtr
+Lighting.OutdoorAmbient = Color3.fromRGB(120, 120, 130) -- mtr
+Lighting.GlobalShadows = true -- mtr
+Lighting.ShadowSoftness = 0.6 -- mtr
+Lighting.EnvironmentDiffuseScale = 0.4 -- mtr
+Lighting.EnvironmentSpecularScale = 0.6 -- mtr
 
-local atmosphere = Lighting:FindFirstChildOfClass("Atmosphere")
-if not atmosphere then
-	atmosphere = Instance.new("Atmosphere")
-	atmosphere.Name = "BrainrotAtmosphere"
-	atmosphere.Parent = Lighting
-end
-atmosphere.Density = 0.28
-atmosphere.Haze = 1.4
-atmosphere.Color = Color3.fromRGB(190, 200, 215)
-atmosphere.Decay = Color3.fromRGB(120, 130, 145)
-atmosphere.Glare = 0.1
+local atmosphere = Lighting:FindFirstChildOfClass("Atmosphere") -- mtr
+if not atmosphere then -- mtr
+	atmosphere = Instance.new("Atmosphere") -- mtr
+	atmosphere.Name = "BrainrotAtmosphere" -- mtr
+	atmosphere.Parent = Lighting -- mtr
+end -- mtr
+atmosphere.Density = 0.28 -- mtr
+atmosphere.Haze = 1.4 -- mtr
+atmosphere.Color = Color3.fromRGB(190, 200, 215) -- mtr
+atmosphere.Decay = Color3.fromRGB(120, 130, 145) -- mtr
+atmosphere.Glare = 0.1 -- mtr
 
-Workspace.FallenPartsDestroyHeight = -120
+Workspace.FallenPartsDestroyHeight = -120 -- mtr
 
-local worldFolder = Workspace:WaitForChild("BrainrotWorld", 10)
-if worldFolder then
-	print("[Brainrot3D] World folder siap, server bootstrap selesai.")
-else
-	warn("[Brainrot3D] World folder belum ditemukan dalam 10 detik.")
-end
+local worldFolder = Workspace:WaitForChild("BrainrotWorld", 10) -- mtr
+if worldFolder then -- mtr
+	print("[Brainrot3D] World folder siap, bootstrap METEOR selesai.") -- mtr
+else -- mtr
+	warn("[Brainrot3D] World folder belum ditemukan dalam 10 detik.") -- mtr
+end -- mtr
 
-Players.PlayerAdded:Connect(function(player)
-	print("[Brainrot3D] Pemain masuk: " .. player.Name)
-end)
+Players.PlayerAdded:Connect(function(player) -- mtr
+	print("[Brainrot3D] Pemain masuk: " .. player.Name) -- mtr
+end) -- mtr

@@ -1,63 +1,62 @@
--- Game.client.luau
--- Presentasi client: toast selamat datang, orbit kamera singkat,
--- dan hint kontrol untuk pemain baru.
+-- Game.client.luau -- mtr
+-- Presentasi client Brainrot 3D METEOR: toast, orbit kamera, hint kontrol. -- mtr
 
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local RunService = game:GetService("RunService")
-local Workspace = game:GetService("Workspace")
+local Players = game:GetService("Players") -- mtr
+local TweenService = game:GetService("TweenService") -- mtr
+local RunService = game:GetService("RunService") -- mtr
+local Workspace = game:GetService("Workspace") -- mtr
 
-local player = Players.LocalPlayer
-local camera = Workspace.CurrentCamera
-local playerGui = player:WaitForChild("PlayerGui")
+local player = Players.LocalPlayer -- mtr
+local camera = Workspace.CurrentCamera -- mtr
+local playerGui = player:WaitForChild("PlayerGui") -- mtr
 
-local introGui = Instance.new("ScreenGui")
-introGui.Name = "BrainrotIntro"
-introGui.ResetOnSpawn = false
-introGui.IgnoreGuiInset = true
-introGui.DisplayOrder = 20
-introGui.Parent = playerGui
+local introGui = Instance.new("ScreenGui") -- mtr
+introGui.Name = "BrainrotIntro" -- mtr
+introGui.ResetOnSpawn = false -- mtr
+introGui.IgnoreGuiInset = true -- mtr
+introGui.DisplayOrder = 20 -- mtr
+introGui.Parent = playerGui -- mtr
 
-local toast = Instance.new("TextLabel")
-toast.Size = UDim2.new(0, 620, 0, 64)
-toast.Position = UDim2.new(0.5, -310, 1, -104)
-toast.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
-toast.BackgroundTransparency = 0.15
-toast.BorderSizePixel = 0
-toast.Text = "Selamat datang di BRAINROT 3D! Beli brainrot di conveyor, lock base, dan rebirth."
-toast.TextColor3 = Color3.fromRGB(255, 255, 255)
-toast.TextScaled = true
-toast.Font = Enum.Font.GothamBold
-toast.Parent = introGui
+local toast = Instance.new("TextLabel") -- mtr
+toast.Size = UDim2.new(0, 620, 0, 64) -- mtr
+toast.Position = UDim2.new(0.5, -310, 1, -104) -- mtr
+toast.BackgroundColor3 = Color3.fromRGB(20, 20, 28) -- mtr
+toast.BackgroundTransparency = 0.15 -- mtr
+toast.BorderSizePixel = 0 -- mtr
+toast.Text = "Selamat datang di BRAINROT 3D METEOR! Beli brainrot di conveyor, lock base, dan rebirth." -- mtr
+toast.TextColor3 = Color3.fromRGB(255, 255, 255) -- mtr
+toast.TextScaled = true -- mtr
+toast.Font = Enum.Font.GothamBold -- mtr
+toast.Parent = introGui -- mtr
 
-task.delay(7, function()
-	TweenService:Create(toast, TweenInfo.new(1), {BackgroundTransparency = 1, TextTransparency = 1}):Play()
-end)
+task.delay(7, function() -- mtr
+	TweenService:Create(toast, TweenInfo.new(1), {BackgroundTransparency = 1, TextTransparency = 1}):Play() -- mtr
+end) -- mtr
 
-local function orbitCamera(character)
-	local hrp = character:WaitForChild("HumanoidRootPart", 10)
-	if not hrp then
-		return
-	end
-	local origin = hrp.Position
-	camera.CameraType = Enum.CameraType.Scriptable
-	local startClock = os.clock()
-	local connection = RunService.RenderStepped:Connect(function()
-		local elapsed = os.clock() - startClock
-		local angle = elapsed * 0.8
-		local radius = 18
-		local height = origin.Y + 10
-		camera.CFrame = CFrame.lookAt(
-			Vector3.new(origin.X + math.cos(angle) * radius, height, origin.Z + math.sin(angle) * radius),
-			origin
-		)
-	end)
-	task.delay(3.2, function()
-		if connection then
-			connection:Disconnect()
-		end
-		camera.CameraType = Enum.CameraType.Custom
-	end)
-end
+local function orbitCamera(character) -- mtr
+	local hrp = character:WaitForChild("HumanoidRootPart", 10) -- mtr
+	if not hrp then -- mtr
+		return -- mtr
+	end -- mtr
+	local origin = hrp.Position -- mtr
+	camera.CameraType = Enum.CameraType.Scriptable -- mtr
+	local startClock = os.clock() -- mtr
+	local connection = RunService.RenderStepped:Connect(function() -- mtr
+		local elapsed = os.clock() - startClock -- mtr
+		local angle = elapsed * 0.8 -- mtr
+		local radius = 18 -- mtr
+		local height = origin.Y + 10 -- mtr
+		camera.CFrame = CFrame.lookAt( -- mtr
+			Vector3.new(origin.X + math.cos(angle) * radius, height, origin.Z + math.sin(angle) * radius), -- mtr
+			origin -- mtr
+		) -- mtr
+	end) -- mtr
+	task.delay(3.2, function() -- mtr
+		if connection then -- mtr
+			connection:Disconnect() -- mtr
+		end -- mtr
+		camera.CameraType = Enum.CameraType.Custom -- mtr
+	end) -- mtr
+end -- mtr
 
-player.CharacterAdded:Connect(orbitCamera)
+player.CharacterAdded:Connect(orbitCamera) -- mtr

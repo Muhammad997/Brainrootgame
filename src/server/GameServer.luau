@@ -1,260 +1,254 @@
--- GameServer.luau
--- Logika server Brainrot 3D: beli brainrot, duit per detik, steal,
--- lock base 30 detik dengan cooldown 60 detik, dan rebirth.
+-- GameServer.luau -- mtr
+-- Server Brainrot 3D METEOR: beli, income per detik, lock, rebirth, steal. -- mtr
 
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players") -- mtr
+local ReplicatedStorage = game:GetService("ReplicatedStorage") -- mtr
 
-local Shared = ReplicatedStorage:WaitForChild("Shared")
-local BrainrotData = require(Shared:WaitForChild("BrainrotData"))
+local Shared = ReplicatedStorage:WaitForChild("Shared") -- mtr
+local BrainrotData = require(Shared:WaitForChild("BrainrotData")) -- mtr
 
-local CONFIG = {
-	START_MONEY = 500,
-	BUY_DISTANCE = 16,
-	LOCK_SECONDS = 30,
-	LOCK_COOLDOWN_SECONDS = 60,
-	REBIRTH_COST = 100000,
-	REBIRTH_MULTIPLIER = 1.25,
-	STEAL_COOLDOWN = 8,
-	MESSAGE_LIFETIME = 3,
-}
+local CONFIG = { -- mtr
+	START_MONEY = 550, -- mtr
+	BUY_DISTANCE = 16, -- mtr
+	LOCK_SECONDS = 30, -- mtr
+	LOCK_COOLDOWN_SECONDS = 60, -- mtr
+	REBIRTH_COST = 100000, -- mtr
+	REBIRTH_MULTIPLIER = 1.25, -- mtr
+	STEAL_COOLDOWN = 8, -- mtr
+	MESSAGE_LIFETIME = 3, -- mtr
+} -- mtr
 
-local function ensureRemoteEvent(name)
-	local existing = ReplicatedStorage:FindFirstChild(name)
-	if existing and existing:IsA("RemoteEvent") then
-		return existing
-	end
-	local event = Instance.new("RemoteEvent")
-	event.Name = name
-	event.Parent = ReplicatedStorage
-	return event
-end
+local function ensureRemoteEvent(name) -- mtr
+	local existing = ReplicatedStorage:FindFirstChild(name) -- mtr
+	if existing and existing:IsA("RemoteEvent") then -- mtr
+		return existing -- mtr
+	end -- mtr
+	local event = Instance.new("RemoteEvent") -- mtr
+	event.Name = name -- mtr
+	event.Parent = ReplicatedStorage -- mtr
+	return event -- mtr
+end -- mtr
 
-local BuyEvent = ensureRemoteEvent("BuyBrainrot")
-local LockEvent = ensureRemoteEvent("LockBase")
-local RebirthEvent = ensureRemoteEvent("Rebirth")
-local UpdateEvent = ensureRemoteEvent("PlayerUpdate")
-local StealEvent = ensureRemoteEvent("StealBrainrot")
-local RequestUpdateEvent = ensureRemoteEvent("RequestUpdate")
+local BuyEvent = ensureRemoteEvent("BuyBrainrot") -- mtr
+local LockEvent = ensureRemoteEvent("LockBase") -- mtr
+local RebirthEvent = ensureRemoteEvent("Rebirth") -- mtr
+local UpdateEvent = ensureRemoteEvent("PlayerUpdate") -- mtr
+local StealEvent = ensureRemoteEvent("StealBrainrot") -- mtr
+local RequestUpdateEvent = ensureRemoteEvent("RequestUpdate") -- mtr
 
-local playerData = {}
+local playerData = {} -- mtr
 
-local function createData()
-	return {
-		Money = CONFIG.START_MONEY,
-		PerSecond = 0,
-		Multiplier = 1,
-		Brainrots = {},
-		Locked = false,
-		LockEnd = 0,
-		CooldownEnd = 0,
-		LastSteal = 0,
-		LastMessage = "",
-		LastMessageAt = 0,
-	}
-end
+local function createData() -- mtr
+	return { -- mtr
+		Money = CONFIG.START_MONEY, -- mtr
+		PerSecond = 0, -- mtr
+		Multiplier = 1, -- mtr
+		Brainrots = {}, -- mtr
+		Locked = false, -- mtr
+		LockEnd = 0, -- mtr
+		CooldownEnd = 0, -- mtr
+		LastSteal = 0, -- mtr
+		LastMessage = "", -- mtr
+		LastMessageAt = 0, -- mtr
+	} -- mtr
+end -- mtr
 
-local function calcPerSecond(data)
-	return BrainrotData.totalPerSecond(data.Brainrots, data.Multiplier)
-end
+local function calcPerSecond(data) -- mtr
+	return BrainrotData.totalPerSecond(data.Brainrots, data.Multiplier) -- mtr
+end -- mtr
 
-local function sync(player, message)
-	local data = playerData[player]
-	if not data then
-		return
-	end
-	if message and message ~= "" then
-		data.LastMessage = message
-		data.LastMessageAt = tick()
-	end
-	local visibleMessage = ""
-	if data.LastMessage ~= "" and tick() - data.LastMessageAt < CONFIG.MESSAGE_LIFETIME then
-		visibleMessage = data.LastMessage
-	end
-	data.PerSecond = calcPerSecond(data)
-	UpdateEvent:FireClient(player, {
-		Money = data.Money,
-		PerSecond = data.PerSecond,
-		Multiplier = data.Multiplier,
-		Brainrots = data.Brainrots,
-		BrainrotCount = #data.Brainrots,
-		Locked = data.Locked,
-		LockRemaining = math.max(0, math.ceil(data.LockEnd - tick())),
-		CooldownRemaining = math.max(0, math.ceil(data.CooldownEnd - tick())),
-		Message = visibleMessage,
-	})
-end
+local function sync(player, message) -- mtr
+	local data = playerData[player] -- mtr
+	if not data then -- mtr
+		return -- mtr
+	end -- mtr
+	if message and message ~= "" then -- mtr
+		data.LastMessage = message -- mtr
+		data.LastMessageAt = tick() -- mtr
+	end -- mtr
+	local visibleMessage = "" -- mtr
+	if data.LastMessage ~= "" and tick() - data.LastMessageAt < CONFIG.MESSAGE_LIFETIME then -- mtr
+		visibleMessage = data.LastMessage -- mtr
+	end -- mtr
+	data.PerSecond = calcPerSecond(data) -- mtr
+	UpdateEvent:FireClient(player, { -- mtr
+		Money = data.Money, -- mtr
+		PerSecond = data.PerSecond, -- mtr
+		Multiplier = data.Multiplier, -- mtr
+		Brainrots = data.Brainrots, -- mtr
+		BrainrotCount = #data.Brainrots, -- mtr
+		Locked = data.Locked, -- mtr
+		LockRemaining = math.max(0, math.ceil(data.LockEnd - tick())), -- mtr
+		CooldownRemaining = math.max(0, math.ceil(data.CooldownEnd - tick())), -- mtr
+		Message = visibleMessage, -- mtr
+	}) -- mtr
+end -- mtr
 
--- Duit masuk setiap detik berdasarkan total $/detik pemain.
-task.spawn(function()
-	while true do
-		task.wait(1)
-		for player, data in pairs(playerData) do
-			if data.PerSecond > 0 then
-				data.Money = data.Money + data.PerSecond
-				sync(player, "")
-			end
-		end
-	end
-end)
+task.spawn(function() -- mtr
+	while true do -- mtr
+		task.wait(1) -- mtr
+		for player, data in pairs(playerData) do -- mtr
+			if data.PerSecond > 0 then -- mtr
+				data.Money = data.Money + data.PerSecond -- mtr
+				sync(player, "") -- mtr
+			end -- mtr
+		end -- mtr
+	end -- mtr
+end) -- mtr
 
--- Beli brainrot dari Part conveyor yang punya atribut Price/PerSecond/Rarity.
-local function buyBrainrot(player, part)
-	local data = playerData[player]
-	if not data then
-		return false
-	end
-	if not part or not part:IsA("BasePart") or not part.Parent then
-		return false
-	end
-	local price = part:GetAttribute("Price")
-	local perSecond = part:GetAttribute("PerSecond")
-	local rarity = part:GetAttribute("Rarity")
-	local brainrotName = part:GetAttribute("BrainrotName") or part.Name
-	if not price or not perSecond or not rarity then
-		return false
-	end
-	if data.Money < price then
-		sync(player, "Duit kurang: butuh $" .. price)
-		return false
-	end
-	local character = player.Character
-	if not character then
-		sync(player, "Karakter belum spawn")
-		return false
-	end
-	local hrp = character:FindFirstChild("HumanoidRootPart")
-	if not hrp then
-		return false
-	end
-	if (hrp.Position - part.Position).Magnitude > CONFIG.BUY_DISTANCE then
-		sync(player, "Terlalu jauh dari brainrot")
-		return false
-	end
-	data.Money = data.Money - price
-	table.insert(data.Brainrots, {
-		Name = brainrotName,
-		Rarity = rarity,
-		Price = price,
-		PerSecond = perSecond,
-		Color = part.Color,
-	})
-	part:Destroy()
-	sync(player, "Beli " .. brainrotName .. " (+$" .. perSecond .. "/s)")
-	return true
-end
+local function buyBrainrot(player, part) -- mtr
+	local data = playerData[player] -- mtr
+	if not data then -- mtr
+		return false -- mtr
+	end -- mtr
+	if not part or not part:IsA("BasePart") or not part.Parent then -- mtr
+		return false -- mtr
+	end -- mtr
+	local price = part:GetAttribute("Price") -- mtr
+	local perSecond = part:GetAttribute("PerSecond") -- mtr
+	local rarity = part:GetAttribute("Rarity") -- mtr
+	local brainrotName = part:GetAttribute("BrainrotName") or part.Name -- mtr
+	if not price or not perSecond or not rarity then -- mtr
+		return false -- mtr
+	end -- mtr
+	if data.Money < price then -- mtr
+		sync(player, "Duit kurang: butuh $" .. price) -- mtr
+		return false -- mtr
+	end -- mtr
+	local character = player.Character -- mtr
+	if not character then -- mtr
+		sync(player, "Karakter belum spawn") -- mtr
+		return false -- mtr
+	end -- mtr
+	local hrp = character:FindFirstChild("HumanoidRootPart") -- mtr
+	if not hrp then -- mtr
+		return false -- mtr
+	end -- mtr
+	if (hrp.Position - part.Position).Magnitude > CONFIG.BUY_DISTANCE then -- mtr
+		sync(player, "Terlalu jauh dari brainrot") -- mtr
+		return false -- mtr
+	end -- mtr
+	data.Money = data.Money - price -- mtr
+	table.insert(data.Brainrots, { -- mtr
+		Name = brainrotName, -- mtr
+		Rarity = rarity, -- mtr
+		Price = price, -- mtr
+		PerSecond = perSecond, -- mtr
+		Color = part.Color, -- mtr
+	}) -- mtr
+	part:Destroy() -- mtr
+	sync(player, "Beli " .. brainrotName .. " (+$" .. perSecond .. "/s)") -- mtr
+	return true -- mtr
+end -- mtr
 
--- Lock base: aktif 30 detik, cooldown 60 detik setelah lock berakhir.
-local function lockBase(player)
-	local data = playerData[player]
-	if not data then
-		return false
-	end
-	local now = tick()
-	if data.Locked then
-		sync(player, "Base sudah terkunci")
-		return false
-	end
-	if now < data.CooldownEnd then
-		sync(player, "Cooldown lock: " .. math.ceil(data.CooldownEnd - now) .. "s")
-		return false
-	end
-	data.Locked = true
-	data.LockEnd = now + CONFIG.LOCK_SECONDS
-	data.CooldownEnd = data.LockEnd + CONFIG.LOCK_COOLDOWN_SECONDS
-	sync(player, "Base terkunci 30 detik")
-	task.delay(CONFIG.LOCK_SECONDS, function()
-		local current = playerData[player]
-		if current and current.Locked then
-			current.Locked = false
-			sync(player, "Lock selesai, cooldown 60s")
-		end
-	end)
-	return true
-end
+local function lockBase(player) -- mtr
+	local data = playerData[player] -- mtr
+	if not data then -- mtr
+		return false -- mtr
+	end -- mtr
+	local now = tick() -- mtr
+	if data.Locked then -- mtr
+		sync(player, "Base sudah terkunci") -- mtr
+		return false -- mtr
+	end -- mtr
+	if now < data.CooldownEnd then -- mtr
+		sync(player, "Cooldown lock: " .. math.ceil(data.CooldownEnd - now) .. "s") -- mtr
+		return false -- mtr
+	end -- mtr
+	data.Locked = true -- mtr
+	data.LockEnd = now + CONFIG.LOCK_SECONDS -- mtr
+	data.CooldownEnd = data.LockEnd + CONFIG.LOCK_COOLDOWN_SECONDS -- mtr
+	sync(player, "Base terkunci 30 detik") -- mtr
+	task.delay(CONFIG.LOCK_SECONDS, function() -- mtr
+		local current = playerData[player] -- mtr
+		if current and current.Locked then -- mtr
+			current.Locked = false -- mtr
+			sync(player, "Lock selesai, cooldown 60s") -- mtr
+		end -- mtr
+	end) -- mtr
+	return true -- mtr
+end -- mtr
 
--- Rebirth: butuh $100000, reset duit dan brainrot, multiplier naik 1.25x.
-local function doRebirth(player)
-	local data = playerData[player]
-	if not data then
-		return false
-	end
-	if data.Money < CONFIG.REBIRTH_COST then
-		sync(player, "Rebirth butuh $100000")
-		return false
-	end
-	data.Money = 0
-	data.Multiplier = data.Multiplier * CONFIG.REBIRTH_MULTIPLIER
-	data.Brainrots = {}
-	data.Locked = false
-	data.LockEnd = 0
-	data.CooldownEnd = 0
-	sync(player, string.format("Rebirth! Multiplier %.2fx", data.Multiplier))
-	return true
-end
+local function doRebirth(player) -- mtr
+	local data = playerData[player] -- mtr
+	if not data then -- mtr
+		return false -- mtr
+	end -- mtr
+	if data.Money < CONFIG.REBIRTH_COST then -- mtr
+		sync(player, "Rebirth butuh $100000") -- mtr
+		return false -- mtr
+	end -- mtr
+	data.Money = 0 -- mtr
+	data.Multiplier = data.Multiplier * CONFIG.REBIRTH_MULTIPLIER -- mtr
+	data.Brainrots = {} -- mtr
+	data.Locked = false -- mtr
+	data.LockEnd = 0 -- mtr
+	data.CooldownEnd = 0 -- mtr
+	sync(player, string.format("Rebirth! Multiplier %.2fx", data.Multiplier)) -- mtr
+	return true -- mtr
+end -- mtr
 
--- Steal: curi satu brainrot dari pemain lain kalau base korban tidak terkunci.
-local function stealBrainrot(thief, victimName, index)
-	local thiefData = playerData[thief]
-	local victim = Players:FindFirstChild(victimName)
-	if not thiefData or not victim then
-		return false
-	end
-	local victimData = playerData[victim]
-	if not victimData then
-		return false
-	end
-	local now = tick()
-	if now < thiefData.LastSteal + CONFIG.STEAL_COOLDOWN then
-		sync(thief, "Steal cooldown " .. math.ceil(thiefData.LastSteal + CONFIG.STEAL_COOLDOWN - now) .. "s")
-		return false
-	end
-	if victimData.Locked then
-		sync(thief, victim.Name .. " sedang lock base")
-		return false
-	end
-	index = tonumber(index) or 1
-	if index < 1 or index > #victimData.Brainrots then
-		return false
-	end
-	local stolen = table.remove(victimData.Brainrots, index)
-	table.insert(thiefData.Brainrots, stolen)
-	thiefData.LastSteal = now
-	sync(victim, thief.Name .. " mencuri " .. stolen.Name)
-	sync(thief, "Curi " .. stolen.Name .. " dari " .. victim.Name)
-	return true
-end
+local function stealBrainrot(thief, victimName, index) -- mtr
+	local thiefData = playerData[thief] -- mtr
+	local victim = Players:FindFirstChild(victimName) -- mtr
+	if not thiefData or not victim then -- mtr
+		return false -- mtr
+	end -- mtr
+	local victimData = playerData[victim] -- mtr
+	if not victimData then -- mtr
+		return false -- mtr
+	end -- mtr
+	local now = tick() -- mtr
+	if now < thiefData.LastSteal + CONFIG.STEAL_COOLDOWN then -- mtr
+		sync(thief, "Steal cooldown " .. math.ceil(thiefData.LastSteal + CONFIG.STEAL_COOLDOWN - now) .. "s") -- mtr
+		return false -- mtr
+	end -- mtr
+	if victimData.Locked then -- mtr
+		sync(thief, victim.Name .. " sedang lock base") -- mtr
+		return false -- mtr
+	end -- mtr
+	index = tonumber(index) or 1 -- mtr
+	if index < 1 or index > #victimData.Brainrots then -- mtr
+		return false -- mtr
+	end -- mtr
+	local stolen = table.remove(victimData.Brainrots, index) -- mtr
+	table.insert(thiefData.Brainrots, stolen) -- mtr
+	thiefData.LastSteal = now -- mtr
+	sync(victim, thief.Name .. " mencuri " .. stolen.Name) -- mtr
+	sync(thief, "Curi " .. stolen.Name .. " dari " .. victim.Name) -- mtr
+	return true -- mtr
+end -- mtr
 
-BuyEvent.OnServerEvent:Connect(function(player, part)
-	buyBrainrot(player, part)
-end)
+BuyEvent.OnServerEvent:Connect(function(player, part) -- mtr
+	buyBrainrot(player, part) -- mtr
+end) -- mtr
 
-LockEvent.OnServerEvent:Connect(function(player)
-	lockBase(player)
-end)
+LockEvent.OnServerEvent:Connect(function(player) -- mtr
+	lockBase(player) -- mtr
+end) -- mtr
 
-RebirthEvent.OnServerEvent:Connect(function(player)
-	doRebirth(player)
-end)
+RebirthEvent.OnServerEvent:Connect(function(player) -- mtr
+	doRebirth(player) -- mtr
+end) -- mtr
 
-StealEvent.OnServerEvent:Connect(function(player, victimName, index)
-	stealBrainrot(player, victimName, index)
-end)
+StealEvent.OnServerEvent:Connect(function(player, victimName, index) -- mtr
+	stealBrainrot(player, victimName, index) -- mtr
+end) -- mtr
 
-RequestUpdateEvent.OnServerEvent:Connect(function(player)
-	sync(player, "")
-end)
+RequestUpdateEvent.OnServerEvent:Connect(function(player) -- mtr
+	sync(player, "") -- mtr
+end) -- mtr
 
-Players.PlayerAdded:Connect(function(player)
-	playerData[player] = createData()
-	player.CharacterAdded:Connect(function(character)
-		task.wait(0.5)
-		sync(player, "Selamat datang di Brainrot 3D!")
-	end)
-	task.wait(0.2)
-	sync(player, "")
-end)
+Players.PlayerAdded:Connect(function(player) -- mtr
+	playerData[player] = createData() -- mtr
+	player.CharacterAdded:Connect(function(character) -- mtr
+		task.wait(0.5) -- mtr
+		sync(player, "Selamat datang di Brainrot 3D METEOR!") -- mtr
+	end) -- mtr
+	task.wait(0.2) -- mtr
+	sync(player, "") -- mtr
+end) -- mtr
 
-Players.PlayerRemoving:Connect(function(player)
-	playerData[player] = nil
-end)
+Players.PlayerRemoving:Connect(function(player) -- mtr
+	playerData[player] = nil -- mtr
+end) -- mtr

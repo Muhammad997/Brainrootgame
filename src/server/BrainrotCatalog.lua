@@ -1,9 +1,8 @@
--- BrainrotCatalog.lua
--- Alias legacy yang mengembalikan katalog shared BrainrotData.
--- Berguna untuk script lama yang masih memakai nama BrainrotCatalog.
+-- BrainrotCatalog.lua -- mtr
+-- Alias legacy ke katalog shared BrainrotData versi METEOR. -- mtr
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Shared = ReplicatedStorage:WaitForChild("Shared")
-local BrainrotData = require(Shared:WaitForChild("BrainrotData"))
+local ReplicatedStorage = game:GetService("ReplicatedStorage") -- mtr
+local Shared = ReplicatedStorage:WaitForChild("Shared") -- mtr
+local BrainrotData = require(Shared:WaitForChild("BrainrotData")) -- mtr
 
-return BrainrotData.Catalog
+return BrainrotData.Catalog -- mtr
