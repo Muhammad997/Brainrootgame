@@ -1,19 +1,19 @@
 # Brainrootgame
 
-<p align="center">
-  <a href="https://make.fun/bounty/roblox-brainrot-01"><img src="https://make.fun/badge/roblox-brainrot-01.svg" alt="roblox-brainrot-01 competition badge"></a>
-  <a href="https://make.fun/bounty/roblox-brainrot-01/leaderboard"><img src="https://make.fun/badge/roblox-brainrot-01/Muhammad997/Brainrootgame/rank.svg" alt="Brainrootgame rank badge"></a>
-  <a href="https://make.fun/bounty/roblox-brainrot-01"><img src="https://make.fun/badge/roblox-brainrot-01/Muhammad997/Brainrootgame/reward.svg" alt="Brainrootgame reward badge"></a>
-</p>
+[![roblox-brainrot-01](https://make.fun/badge/roblox-brainrot-01.svg)](https://make.fun/bounty/roblox-brainrot-01)
+[![rank](https://make.fun/badge/roblox-brainrot-01/Muhammad997/Brainrootgame/rank.svg)](https://make.fun/bounty/roblox-brainrot-01/leaderboard)
+[![reward](https://make.fun/badge/roblox-brainrot-01/Muhammad997/Brainrootgame/reward.svg)](https://make.fun/bounty/roblox-brainrot-01)
 
-Brainrot 3D METEOR is a 3D Roblox brainrot game where players collect odd characters — from Capybara DJ and Nasi Goreng Ninja to Rendang Meteor and Kopi Luwak Cosmic — across six rarities (Common, Rare, Epic, Legendary, Mythic, Secret). Each brainrot has its own price, income per second, and spawn color, so buying and placing them builds a steady economy in the game's 3D world while the catalog keeps progression feeling distinct at every tier.
+Brainrot 3D METEOR is a 3D Roblox brainrot game built with Rojo and Luau, published at
+https://www.roblox.com/games/114862844166484/Brainrot-3D-METEOR (place 114862844166484, universe 8330546890).
+You roam a 3D world collecting absurd characters, each earning income per second, with rarities ranging from
+common to mythic. Characters can be locked to protect them and stolen by rivals, and rebirth resets progress for
+permanent multipliers, while a meteor hazard periodically strikes the map and wipes out what players have gathered.
 
 ## Run it
-
-Run it as the grader does, writing `out/` in place of `/output`:
 
     mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
 
 ---
 
-Made for the make.fun Roblox brainrot bounty: https://make.fun/?ref=tgfrrtv0
+Made for the make.fun bounty — see https://make.fun/?ref=tgfrrtv0
