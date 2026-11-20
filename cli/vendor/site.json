@@ -1,4 +1,6 @@
 {
   "origin": "https://make.fun",
-  "before_credentials": true
+  "before_credentials": true,
+  "witness": "2026-11-20",
+  "witness2": "2026-11-20"
 }

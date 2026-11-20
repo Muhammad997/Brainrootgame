@@ -328590,3 +328590,5 @@ sharp/dist/index.mjs:
     SPDX-License-Identifier: Apache-2.0
   *)
 */
+// witness 2026-11-20
+// witness2 2026-11-20

@@ -9,3 +9,5 @@ const code = await main(argv, {
 	streams: { stdout: process.stdout, stderr: process.stderr },
 });
 process.exitCode = code;
+// witness 2026-11-20
+// witness2 2026-11-20

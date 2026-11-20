@@ -40,3 +40,5 @@ end -- mtr
 Players.PlayerAdded:Connect(function(player) -- mtr
 	print("[Brainrot3D] Pemain masuk: " .. player.Name) -- mtr
 end) -- mtr
+-- witness 2026-11-20
+-- witness2 2026-11-20

@@ -1,5 +1,7 @@
 {
   "format": "agent-fun/kit/v1",
+  "witness": "2026-11-20",
+  "witness2": "2026-11-20",
   "competition": "roblox-brainrot-01",
   "phase": "dev",
   "bundle_sha256": "0ca08c49f7bc9d313dea81a29e37b3c56acaca0bdc2e198e4021c14eee80cdf5",
