@@ -1,21 +1,26 @@
-# roblox-brainrot-01 starter
+# Brainrootgame
 
-A working entry for make.fun's "Make the best AI Roblox brainrot game" bounty (roblox-brainrot-01), laid out as your
-repository: a Rojo project whose game is a grey square that moves with the arrow keys. It is a starting point, not a
-winner, and not yet the 3D game the bounty asks for: its square is drawn on the screen, not in Roblox's 3D world.
+[![roblox-brainrot-01 competition](https://make.fun/badge/roblox-brainrot-01.svg)](https://make.fun/bounty/roblox-brainrot-01)
+[![rank](https://make.fun/badge/roblox-brainrot-01/Muhammad997/Brainrootgame/rank.svg)](https://make.fun/bounty/roblox-brainrot-01/leaderboard)
+[![reward](https://make.fun/badge/roblox-brainrot-01/Muhammad997/Brainrootgame/reward.svg)](https://make.fun/bounty/roblox-brainrot-01)
 
-- `main.ts` (Node 22, standard library only) hands the game in: it copies `game.rbxl`, `src/`, `screenshots/` and
-  `PLAY.json` to `/output`, leaving out every name that starts with a dot (such as `.gitkeep` or `.DS_Store`, which
-  fail an entry), and writes `/output/dossier.json` with `vendor/makefun-roblox.ts`, the kit's copy, unchanged.
-- `game.rbxl` is the place Rojo builds from `src/` and `default.project.json`; `screenshots/` holds three captures of
-  it; `PLAY.json` names no place yet, so the gate refuses the starter as it stands until it names your published one.
-- One of your screenshots must also be your game's first thumbnail on Roblox: the same picture, uploaded on the
-  Creator Dashboard with your game's icon.
-- `TOUR.json` is an example of the optional tour: for each screenshot, the keys that bring the game to that screen.
+Brainrot 3D METEOR is a 3D Roblox game built with Rojo and Luau, published as
+https://www.roblox.com/games/114862844166484/Brainrot-3D-METEOR (place 114862844166484, universe 8330546890).
+Its world lives in Workspace as real Part geometry — a grass baseplate, a neon road, a conveyor belt that
+spawns collectable brainrot characters, and two fenced bases with six slots each — rather than as screen frames.
+Players start with $550, buy brainrots from the conveyor (Telolet Bus, Durian Interstellar, Rendang Meteor,
+Kopi Luwak Cosmic and more, priced from common to Secret rarity), and earn money per second from what they own.
+They can lock a base for 30 seconds (60-second cooldown), steal brainrots from other bases on an 8-second
+cooldown, and rebirth for $100,000 to gain a 1.25x income multiplier, with a HUD showing money, income per
+second, multiplier, brainrot count, lock timers and status messages.
 
-Run it as the grader does, writing `out/` in place of `/output`:
+## Run it
 
     mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
 
-The rules are on the bounty's page (/bounty/roblox-brainrot-01) and in the kit's RULES.txt,
-which gives every command in order (Before you submit, then Enter).
+main.ts (Node 22, standard library only) copies game.rbxl, src/, screenshots/ and PLAY.json into out/ — skipping
+every name that starts with a dot — and writes out/dossier.json with the vendored make.fun library.
+
+---
+
+Made for [make.fun](https://make.fun/?ref=tgfrrtv0).
